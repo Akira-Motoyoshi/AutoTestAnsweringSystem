@@ -159,10 +159,50 @@ Python等の外部環境を必要とせず、
 
 ## スクリプト構成
 
-```js
 // ==UserScript==
-// @name         AutoTestAnswering (Romeo)
-// @match        https://cp.aim.aoyama.ac.jp/lms/tstsQuee/*
+// @name         AutoTestAnswering (Romeo) DEBUG badge
+// @match        https://cp.aim.aoyama.ac.jp/*
 // @grant        none
+// @run-at       document-end
 // ==/UserScript==
+
+(function () {
+  "use strict";
+
+  // 1) console に必ず出す
+  console.log("[AutoTestAnswering][DEBUG] fired:", location.href);
+  console.log("[AutoTestAnswering][DEBUG] inIframe:", window.top !== window.self);
+
+  // 2) 画面にバッジを出す（alert不要）
+  const id = "tm-debug-badge-romeo";
+  const old = document.getElementById(id);
+  if (old) old.remove();
+
+  const badge = document.createElement("div");
+  badge.id = id;
+  badge.textContent = "TM fired ✅ " + new Date().toLocaleTimeString();
+  badge.style.position = "fixed";
+  badge.style.right = "12px";
+  badge.style.bottom = "12px";
+  badge.style.zIndex = "2147483647";
+  badge.style.background = "rgba(0,0,0,0.85)";
+  badge.style.color = "#fff";
+  badge.style.padding = "10px 12px";
+  badge.style.borderRadius = "10px";
+  badge.style.fontSize = "12px";
+  badge.style.fontFamily = "system-ui, -apple-system, sans-serif";
+  badge.style.boxShadow = "0 6px 18px rgba(0,0,0,0.25)";
+  badge.style.cursor = "pointer";
+  badge.title = "クリックでURLをconsoleに再出力";
+
+  badge.addEventListener("click", () => {
+    console.log("[AutoTestAnswering][DEBUG] clicked badge. URL:", location.href);
+  });
+
+  document.documentElement.appendChild(badge);
+
+  // 3) ついでに本文の長さだけ
+  const bodyText = document.body?.innerText ?? "";
+  console.log("[AutoTestAnswering][DEBUG] bodyText length:", bodyText.length);
+})();
 
