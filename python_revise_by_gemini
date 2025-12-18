@@ -1,0 +1,55 @@
+import csv
+import json
+import re
+import os # ファイル存在確認用
+
+CSV_NAME = "question and answer.csv"
+OUT_JSON = "qa_with_keys.json"
+
+def extract_keywords(text: str):
+    t = (text or "").strip()
+    # 【改善】1文字の漢字も許可。ひらがなはノイズが多いので今回は除外のままにするが、文字数制限は緩和
+    keys = re.findall(r"[一-龥]+|[ァ-ヶー]+|\d+", t)
+    # 重複排除のロジックは元のままでOK（setを使うともっと短く書けます）
+    return list(dict.fromkeys(keys)) 
+
+def main():
+    # 【改善】ファイルがあるか確認
+    if not os.path.exists(CSV_NAME):
+        print(f"エラー: {CSV_NAME} が見つかりません。")
+        return
+
+    qa = []
+    
+    # 【改善】encoding="utf-8-sig" にするとExcelのUTF-8も読みやすくなる
+    try:
+        with open(CSV_NAME, encoding="utf-8-sig") as f:
+            reader = csv.DictReader(f)
+            
+            # 【改善】列名チェック（questionが含まれているか？）
+            if reader.fieldnames and "question" not in reader.fieldnames:
+                print("エラー: CSVに 'question' 列がありません。")
+                return
+
+            for i, row in enumerate(reader):
+                # 【改善】データがない行（空行）をスキップする安全策
+                if not row: continue
+                
+                # .get()を使うと、キーがなくてもエラーにならずNoneを返す
+                q = row.get("question", "").strip()
+                a = row.get("answer", "").strip()
+                
+                if q and a: # 中身がある時だけ追加
+                    qa.append({"q": q, "a": a, "keys": extract_keywords(q)})
+                    
+    except UnicodeDecodeError:
+        print("エラー: 文字コードが違います。CSVをUTF-8で保存し直してください。")
+        return
+
+    with open(OUT_JSON, "w", encoding="utf-8") as f:
+        json.dump(qa, f, ensure_ascii=False, indent=2)
+
+    print(f"完了: {len(qa)}件のデータを処理しました。")
+
+if __name__ == "__main__":
+    main()
