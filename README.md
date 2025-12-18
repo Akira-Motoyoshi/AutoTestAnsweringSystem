@@ -103,3 +103,66 @@ LMSテスト画面の入力欄へ自動的に解答を反映する **Tampermonke
 
   console.log("✨ ユーザースクリプトによる自動入力が完了しました！");
 })();
+
+---
+# Auto Test Answering System（Tempermonkey UserScript）
+
+学内LMS上のテスト画面を対象に、  
+**事前に用意したQ&Aデータをもとに回答候補を自動で提示・入力支援する**  
+Tempermonkey用のユーザースクリプトです。
+
+※ 本スクリプトは **個人で作成したデバッグ用テスト環境** を想定しています。
+
+---
+
+## 概要
+
+このスクリプトは、LMS上のテストページにアクセスした際に、
+
+- 問題文を取得  
+- 事前に登録したQ&Aデータと照合  
+- 一致度の高い回答を自動選択・入力  
+
+といった流れを、ブラウザ上で自動的に行います。
+
+Python等の外部環境を必要とせず、  
+**ブラウザ拡張（Tempermonkey）のみで動作**します。
+
+---
+
+## 特徴
+
+- ✅ Tempermonkeyのみで完結
+- ✅ CSV / JSON から作成したQ&Aデータを使用可能
+- ✅ 日本語テキストを正規化して曖昧一致に対応
+- ✅ URLが毎回変わるLMSにも対応（@match指定）
+- ✅ デバッグ・検証用途向け
+
+---
+
+## 動作環境
+
+- Google Chrome / Edge / Firefox  
+- Tempermonkey 拡張機能  
+- JavaScript 有効
+
+---
+
+## インストール方法
+
+1. ブラウザに **Tempermonkey** をインストール  
+2. 「新規スクリプトを作成」を選択  
+3. 本リポジトリのスクリプトコードをコピーして貼り付け  
+4. 保存して有効化  
+
+---
+
+## スクリプト構成
+
+```js
+// ==UserScript==
+// @name         AutoTestAnswering (Romeo)
+// @match        https://cp.aim.aoyama.ac.jp/lms/tstsQuee/*
+// @grant        none
+// ==/UserScript==
+
